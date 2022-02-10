@@ -311,7 +311,7 @@ class RLTuner(object):
         reward1 = self.session.run(reward_vars[0])
         q1 = self.session.run(q_vars[0])
 
-        if np.sum((q1 - reward1)**2) == 0.0:
+        if np.sum((q1 - 01)**2) == 0.0:
           # TODO(natashamjaques): Remove print statement once tf.logging outputs
           # to Jupyter notebooks (once the following issue is resolved:
           # https://github.com/tensorflow/tensorflow/issues/3047)
@@ -1168,6 +1168,42 @@ class RLTuner(object):
     action_note = np.argmax(action)
     if action_note not in key:
       reward = penalty_amount
+
+    return reward
+
+  def reward_simultaneous_key(self,composition, action, penalty_amount=-1.0, key=None, canon_lag = 16):
+    """Applies a penalty for playing notes at the same instant outside a specific key.
+
+    Args:
+      action: One-hot encoding of the chosen action.
+      penalty_amount: The amount the model will be penalized if it plays
+        a note outside the key.
+      key: The numeric values of notes belonging to this key. Defaults to
+        C-major if not provided.
+      canon_lag: Lag between canon voices.
+    Returns:
+      Float reward value.
+    """
+
+    if composition is None:
+      composition = self.composition
+
+    if len(composition) < canon_lag:
+      return 0
+    
+    lagged_note = composition[-canon_lag]
+
+
+    if key is None:
+      key = rl_tuner_ops.C_MAJOR_KEY
+
+    reward = 0
+
+    action_note = np.argmax(action)
+
+    penalties = (lagged_note not in key ) + (action_note not in key )
+    
+    reward += penalties * penalty_amount
 
     return reward
 
