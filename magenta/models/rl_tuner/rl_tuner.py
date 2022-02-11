@@ -311,7 +311,7 @@ class RLTuner(object):
         reward1 = self.session.run(reward_vars[0])
         q1 = self.session.run(q_vars[0])
 
-        if np.sum((q1 - 01)**2) == 0.0:
+        if np.sum((q1 - reward1)**2) == 0.0:
           # TODO(natashamjaques): Remove print statement once tf.logging outputs
           # to Jupyter notebooks (once the following issue is resolved:
           # https://github.com/tensorflow/tensorflow/issues/3047)
