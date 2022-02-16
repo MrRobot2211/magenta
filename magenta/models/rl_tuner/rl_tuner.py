@@ -1019,6 +1019,11 @@ class RLTuner(object):
     tf.logging.debug('Key: %s', reward)
     prev_reward = reward
 
+    reward += self.reward_simultaneous_key(action)
+    if reward != prev_reward:
+      tf.logging.debug('Simultaneous_key: %s', reward)
+    prev_reward = reward
+
     reward += self.reward_tonic(action)
     if reward != prev_reward:
       tf.logging.debug('Tonic: %s', reward)
@@ -1171,7 +1176,7 @@ class RLTuner(object):
 
     return reward
 
-  def reward_simultaneous_key(self,composition, action, penalty_amount=-1.0, key=None, canon_lag = 16):
+  def reward_simultaneous_key(self, action, penalty_amount=-1.0, key=None, canon_lag = 16):
     """Applies a penalty for playing notes at the same instant outside a specific key.
 
     Args:
@@ -1184,9 +1189,7 @@ class RLTuner(object):
     Returns:
       Float reward value.
     """
-
-    if composition is None:
-      composition = self.composition
+    composition =self.composition
 
     if len(composition) < canon_lag:
       return 0
